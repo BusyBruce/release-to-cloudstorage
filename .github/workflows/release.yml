@@ -8,6 +8,22 @@ on:
   repository_dispatch:
     types: [ n8n ]
     branches: [ main ]
+    inputs:
+      release_repo_url:
+        description: 'release repository url'
+        required: true
+      release_repo_name:
+        description: 'release repository name'
+        required: true
+      release_tag:
+        description: 'release repository tag'
+        required: true
+      release_asset:
+        description: 'release repository asset name'
+        required: true
+      onedrive_prefix_path:
+        description: 'onedrive prefix path'
+        required: true
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -15,7 +31,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  upload:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -24,12 +40,20 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      # Init tools
+      - name: Init tools
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          chmod +x $GITHUB_WORKSPACE/fetch
+          chmod +x $GITHUB_WORKSPACE/OneDriveUploader
+          echo ${{secrets.ONEDRIVE_AUTH}} >> $GITHUB_WORKSPACE/auth.json
+
+      # fetch release asset
+      - name: fetch release asset
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/${{github.event.inputs.release_repo_name}}/${{github.event.inputs.release_tag}}
+          $GITHUB_WORKSPACE/fetch --repo="${{github.event.inputs.release_repo_url}}"" --github-oauth-token="${{secrets.FETCH_TOKEN}}" --tag="${{github.event.inputs.release_tag}}" --release-asset="${{secrets.FETCH_TOKEN}}" --tag=${{github.event.inputs.release_asset}} $GITHUB_WORKSPACE/${{github.event.inputs.release_repo_name}}/${{github.event.inputs.release_tag}}
+
+      # upload to onedrive
+      - name: upload to onedrive
+        run: |
+           $GITHUB_WORKSPACE/OneDriveUploader -c $GITHUB_WORKSPACE/auth.json -t 10 -s $GITHUB_WORKSPACE/${{github.event.inputs.release_repo_name}}/${{github.event.inputs.release_tag}} -r "Public/odindex-cf/${{github.event.inputs.onedrive_prefix_path}}/${{github.event.inputs.release_repo_name}}/${{github.event.inputs.release_tag}}"

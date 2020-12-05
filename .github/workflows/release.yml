@@ -45,13 +45,17 @@ jobs:
         run: |
           chmod +x ./fetch
           chmod +x ./OneDriveUploader
-          touch ./auth.json && echo "${{secrets.ONEDRIVE_AUTH}}" > ./auth.json && exit 0
+          touch ./auth.json && echo $AUTH_JSON > ./auth.json && exit 0
+        env:
+          AUTH_JSON: ${{ secrets.ONEDRIVE_AUTH }}
 
       # fetch release asset
       - name: fetch release asset
         run: |
           mkdir -p ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}}
-          ./fetch --repo="${{github.event.client_payload.release_repo_url}}" --github-oauth-token="${{secrets.FETCH_TOKEN}}" --tag="${{github.event.client_payload.release_tag}}" --release-asset="${{github.event.client_payload.release_asset}}" ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}}
+          ./fetch --repo="${{github.event.client_payload.release_repo_url}}" --github-oauth-token=$GITHUB_TOKEN --tag="${{github.event.client_payload.release_tag}}" --release-asset="${{github.event.client_payload.release_asset}}" ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.FETCH_TOKEN }}
 
       # upload to onedrive
       - name: upload to onedrive

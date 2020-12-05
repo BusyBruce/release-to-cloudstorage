@@ -51,7 +51,7 @@ jobs:
       - name: fetch release asset
         run: |
           mkdir -p ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}}
-          ./fetch --repo="${{github.event.client_payload.release_repo_url}}" --github-oauth-token="${{secrets.FETCH_TOKEN}}" --tag="${{github.event.client_payload.release_tag}}" --release-asset="${{secrets.FETCH_TOKEN}}" --tag="${{github.event.client_payload.release_asset}}" ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}}
+          ./fetch --repo="${{github.event.client_payload.release_repo_url}}" --github-oauth-token="${{secrets.FETCH_TOKEN}}" --tag="${{github.event.client_payload.release_tag}}" --release-asset="${{github.event.client_payload.release_asset}}" ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}}
 
       # upload to onedrive
       - name: upload to onedrive

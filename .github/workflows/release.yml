@@ -8,7 +8,7 @@ on:
   repository_dispatch:
     types: [ n8n ]
     branches: [ main ]
-    inputs:
+    client_payload:
       release_repo_url:
         description: 'release repository url'
         required: true
@@ -50,10 +50,10 @@ jobs:
       # fetch release asset
       - name: fetch release asset
         run: |
-          mkdir -p ./${{github.event.inputs.release_repo_name}}/${{github.event.inputs.release_tag}}
-          ./fetch --repo="${{github.event.inputs.release_repo_url}}" --github-oauth-token="${{secrets.FETCH_TOKEN}}" --tag="${{github.event.inputs.release_tag}}" --release-asset="${{secrets.FETCH_TOKEN}}" --tag="${{github.event.inputs.release_asset}}" ./${{github.event.inputs.release_repo_name}}/${{github.event.inputs.release_tag}}
+          mkdir -p ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}}
+          ./fetch --repo="${{github.event.client_payload.release_repo_url}}" --github-oauth-token="${{secrets.FETCH_TOKEN}}" --tag="${{github.event.client_payload.release_tag}}" --release-asset="${{secrets.FETCH_TOKEN}}" --tag="${{github.event.client_payload.release_asset}}" ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}}
 
       # upload to onedrive
       - name: upload to onedrive
         run: |
-           ./OneDriveUploader -c ./auth.json -t 10 -s ./${{github.event.inputs.release_repo_name}}/${{github.event.inputs.release_tag}} -r "Public/odindex-cf/${{github.event.inputs.onedrive_prefix_path}}/${{github.event.inputs.release_repo_name}}/${{github.event.inputs.release_tag}}"
+           ./OneDriveUploader -c ./auth.json -t 10 -s ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}} -r "Public/odindex-cf/${{github.event.client_payload.onedrive_prefix_path}}/${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}}"

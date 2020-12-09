@@ -2,35 +2,38 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   repository_dispatch:
-    types: [ n8n ]
-    branches: [ main ]
+    types: [n8n]
+    branches: [main]
     client_payload:
       release_repo_url:
-        description: 'release repository url'
+        description: "release repository url"
         required: true
       release_repo_name:
-        description: 'release repository name'
+        description: "release repository name"
         required: true
       release_tag:
-        description: 'release repository tag'
+        description: "release repository tag"
         required: true
       release_asset:
-        description: 'release repository asset name'
+        description: "release repository asset name"
         required: true
       onedrive_prefix_path:
-        description: 'onedrive prefix path'
-        required: true
+        description: "onedrive prefix path"
+        required: false
+      cloud189_prefix_path:
+        description: "cloud 189 prefix path"
+        required: false
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
+  # This workflow contains a single job called "upload"
   upload:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -45,6 +48,7 @@ jobs:
         run: |
           chmod +x ./fetch
           chmod +x ./OneDriveUploader
+          chmod +x ./cloudpan189-go
           touch ./auth.json && echo $AUTH_JSON > ./auth.json && exit 0
         env:
           AUTH_JSON: ${{ secrets.ONEDRIVE_AUTH }}
@@ -60,4 +64,13 @@ jobs:
       # upload to onedrive
       - name: upload to onedrive
         run: |
-           ./OneDriveUploader -c ./auth.json -t 10 -s ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}} -r "Public/odindex-cf/${{github.event.client_payload.onedrive_prefix_path}}/${{github.event.client_payload.release_repo_name}}"
+          ./OneDriveUploader -c ./auth.json -t 10 -s ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}} -r "Public/odindex-cf/${{github.event.client_payload.onedrive_prefix_path}}/${{github.event.client_payload.release_repo_name}}"
+
+      # upload to cloud189
+      - name: upload to cloud189
+        run: |
+          ./cloudpan189-go login -username=$ACCOUNT -password=$PASSWORD
+          ./cloudpan189-go upload ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}} "/Public/odindex-cf/${{github.event.client_payload.cloud189_prefix_path}}/${{github.event.client_payload.release_repo_name}}"
+        env:
+          ACCOUNT: ${{secrets.CLOUD189_ACCOUNT}}
+          PASSWORD: ${{secrets.CLOUD189_PASSWORD}}

@@ -31,6 +31,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  ENABLE_CLOUD189: false
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "upload"
@@ -68,11 +71,10 @@ jobs:
 
       # upload to cloud189
       - name: upload to cloud189
-        if: $ENABLE
+        if: ${{ ENABLE_CLOUD189 }}
         run: |
           ./cloudpan189-go login -username=$ACCOUNT -password=$PASSWORD
           ./cloudpan189-go upload ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}} "/Public/odindex-cf/${{github.event.client_payload.cloud189_prefix_path}}/${{github.event.client_payload.release_repo_name}}"
         env:
-          ENABLE: false
           ACCOUNT: ${{secrets.CLOUD189_ACCOUNT}}
           PASSWORD: ${{secrets.CLOUD189_PASSWORD}}

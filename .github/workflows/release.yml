@@ -68,9 +68,11 @@ jobs:
 
       # upload to cloud189
       - name: upload to cloud189
+        if: $ENABLE
         run: |
           ./cloudpan189-go login -username=$ACCOUNT -password=$PASSWORD
           ./cloudpan189-go upload ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}} "/Public/odindex-cf/${{github.event.client_payload.cloud189_prefix_path}}/${{github.event.client_payload.release_repo_name}}"
         env:
+          ENABLE: false
           ACCOUNT: ${{secrets.CLOUD189_ACCOUNT}}
           PASSWORD: ${{secrets.CLOUD189_PASSWORD}}

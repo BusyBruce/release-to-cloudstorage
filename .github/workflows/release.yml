@@ -54,7 +54,7 @@ jobs:
           chmod +x ./cloudpan189-go
           chmod +x ./oneshow
           touch ./auth.json && echo $AUTH_JSON > ./auth.json && exit 0
-          touch ~/.od.json && echo $ONESHOW_JSON > ~/.od.json && exit 0
+          touch ./od.json && echo $ONESHOW_JSON > ./od.json && exit 0
         env:
           AUTH_JSON: ${{ secrets.ONEDRIVE_AUTH }}
           ONESHOW_JSON: ${{ secrets.ONESHOW_AUTH }}
@@ -71,7 +71,7 @@ jobs:
       - name: upload to onedrive
         run: |
           touch ~/.od.json && echo $ONESHOW_JSON > ~/.od.json && exit 0
-          ./oneshow u -t 10 -s ./${{github.event.client_payload.release_repo_name}}/${{github.event.client_payload.release_tag}} -f "/Public/odindex-cf/${{github.event.client_payload.onedrive_prefix_path}}/${{github.event.client_payload.release_repo_name}}"
+          ./oneshow u -s ./${{github.event.client_payload.release_repo_name}}/ -f "/Public/odindex-cf/${{github.event.client_payload.onedrive_prefix_path}}/${{github.event.client_payload.release_repo_name}}"
         env:
           ONESHOW_JSON: ${{ secrets.ONESHOW_AUTH }}
 

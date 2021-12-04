@@ -70,6 +70,7 @@ jobs:
       # upload to onedrive
       - name: upload to onedrive
         run: |
+          ls -al ./${{github.event.client_payload.release_repo_name}}/
           touch ~/.od.json && echo $ONESHOW_JSON > ~/.od.json && exit 0
           ./oneshow u -s ./${{github.event.client_payload.release_repo_name}}/ -f "/Public/odindex-cf/${{github.event.client_payload.onedrive_prefix_path}}/${{github.event.client_payload.release_repo_name}}"
         env:
